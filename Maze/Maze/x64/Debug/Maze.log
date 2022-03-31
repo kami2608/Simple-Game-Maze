@@ -1,0 +1,4 @@
+﻿  Maze.cpp
+C:\Users\ADMIN\source\games\Maze\Maze\Maze.cpp(370,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\ADMIN\source\games\Maze\Maze\Maze.cpp(680,76): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Maze.vcxproj -> C:\Users\ADMIN\source\games\Maze\x64\Debug\Maze.exe
