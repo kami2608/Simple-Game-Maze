@@ -16,7 +16,7 @@ typedef pair<string, int> si;
 
 
 //******* Global Var ***********
-char maze[100][100];
+char maze[50][50];
 int maze_w, maze_h;
 int size_pixel;
 queue <ii> q;
@@ -40,7 +40,7 @@ const int SCREEN_HEIGHT = 700;
 SDL_Window* window;
 SDL_Renderer* ren;
 SDL_Texture* bg_play, * choose_startGame[3], * instruction, * choose_levelPlay[3], * level_rank, * choose_levelRank[3], * Name,
-* money, * pressBorS, * rank_board, * solve_trace, * startGame, * wall, * you, * win, * your_trace, * enterName, * pink;
+* cheese, * pressBorS, * rank_board, * solve_trace, * startGame, * wall, * you, * win, * your_trace, * enterName, * pink, * bg_name; 
 
 //***** Init and Close SDL Prototypes ***********
 bool init();
@@ -59,13 +59,11 @@ void show_bgPlay();
 void renderYou(int x, int y);
 void renderWall(int x, int y);
 void renderYourTrace(int x, int y);
-void renderMoney(int x, int y);
+void renderCheese(int x, int y);
 void showWin();
 void renderSolveTrace(int x, int y);
 void renderStep(SDL_Texture* tex);
-void renderTime(SDL_Texture* tex);
 void renderText(string str_val, int x, int y);
-void showTime();
 void showStep(int x);
 void renderBackOrSolve();
 void show_levelRank();
@@ -197,7 +195,7 @@ void chooseStartGame() {
                                         choose_rank = 2;
                                         showChoose_levelRank(choose_levelRank[2]);
                                         SDL_Delay(500);
-                                        maze_h = 20; maze_w = 23; size_pixel = 34;
+                                        maze_h = 22; maze_w = 25; size_pixel = 32;
                                         showEnterName();
                                         EnterName();
                                         show_bgPlay();
@@ -388,7 +386,7 @@ void renderMaze() {
             else renderWall(j * size_pixel, i * size_pixel);
         }
     }
-    renderMoney((maze_w - 1) * size_pixel, (maze_h - 1) * size_pixel);
+    renderCheese((maze_w - 1) * size_pixel, (maze_h - 1) * size_pixel);
     SDL_Delay(100);
     renderYou(start.second * size_pixel, start.first * size_pixel);
     SDL_Delay(100);
@@ -680,21 +678,18 @@ void EnterName() {
                 renderTexture(Name, (800 - 50 * name.size()) / 2 + 100, 145);
                 SDL_RenderPresent(ren);
                 TTF_CloseFont(font);
-                bool quit1 = false;
-                SDL_Event e1;
-                while (!quit1) {
-                    SDL_WaitEvent(&e1);
-                    if ((e1.type == SDL_QUIT) || (e1.type == SDL_KEYDOWN && e1.key.keysym.sym == SDLK_ESCAPE)) {
-                        close();
-                        exit(1);
-                    }
-                    if (e1.type == SDL_KEYDOWN && e1.key.keysym.sym == SDLK_RETURN) {
-                        quit1 = true;
-                        quit = true;
-                    }
-                }
+                quit = true;
                 break;
             }
+            renderTexture(bg_name, 100, 140);
+            TTF_Font* font = TTF_OpenFont("Roboto-Black.ttf", 80);
+            SDL_Color color = { 0, 0, 255 };
+            SDL_Surface* surface = TTF_RenderText_Solid(font, name.c_str(), color);
+            Name = SDL_CreateTextureFromSurface(ren, surface);
+            SDL_FreeSurface(surface);
+            renderTexture(Name, (800 - 50 * name.size()) / 2 + 100, 145);
+            SDL_RenderPresent(ren);
+            TTF_CloseFont(font);
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN) {
             int x, y;
@@ -809,12 +804,13 @@ void loadMedia() {
         level_rank = loadTexture("images/level_rank.bmp");
         rank_board = loadTexture("images/rank_board.bmp");
         enterName = loadTexture("images/enterName.bmp");
-        money = loadTexture("images/money.bmp");
+        cheese = loadTexture("images/cheese.bmp");
         solve_trace = loadTexture("images/solve_trace.bmp");
         startGame = loadTexture("images/startGame.bmp");
         wall = loadTexture("images/wall.bmp");
         you = loadTexture("images/you.bmp");
         win = loadTexture("images/win.bmp");
+        bg_name = loadTexture("images/bg_name.bmp");
         your_trace = loadTexture("images/your_trace.bmp");
         choose_startGame[0] = loadTexture("images/choose_play.bmp");
         choose_startGame[1] = loadTexture("images/choose_instruction.bmp");
@@ -834,8 +830,8 @@ void renderBackOrSolve() {
     SDL_RenderPresent(ren);
 }
 
-void renderMoney(int x, int y) {
-    renderTexture(money, x, y, size_pixel, size_pixel);
+void renderCheese(int x, int y) {
+    renderTexture(cheese, x, y, size_pixel, size_pixel);
     SDL_RenderPresent(ren);
 }
 
@@ -860,12 +856,6 @@ void renderText(string str_val, int x, int y) {
     TTF_CloseFont(font);
     SDL_DestroyTexture(tex);
     SDL_FreeSurface(surface);
-}
-
-void renderTime(SDL_Texture* tex) {
-    renderTexture(pink, 802, 444);
-    renderTexture(tex, 825, 466);
-    SDL_RenderPresent(ren);
 }
 
 void renderWall(int x, int y) {
@@ -936,19 +926,6 @@ void showInstruction() {
     SDL_RenderPresent(ren);
 }
 
-void showTime() {
-    Uint32 time_val = SDL_GetTicks() / 1000;
-    string str_val = to_string(time_val) + "s";
-    TTF_Font* font = TTF_OpenFont("Roboto-Black.ttf", 50);
-    SDL_Color color = { 0, 255, 0 };
-    SDL_Surface* surface = TTF_RenderText_Solid(font, str_val.c_str(), color);
-    SDL_Texture* tex = SDL_CreateTextureFromSurface(ren, surface);
-    renderTime(tex);
-    TTF_CloseFont(font);
-    SDL_DestroyTexture(tex);
-    SDL_FreeSurface(surface);
-}
-
 void showStep(int x) {
     string str_val = to_string(x);
     TTF_Font* font = TTF_OpenFont("Roboto-Black.ttf", 50);
@@ -970,7 +947,7 @@ bool init() {
     }
     else {
         TTF_Init();
-        window = SDL_CreateWindow("Hangman SDL", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        window = SDL_CreateWindow("ESCAPE MAZE", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (window == NULL) {
             cout << "Window could not be created" << endl;
             return false;
@@ -1025,7 +1002,7 @@ void close() {
     SDL_DestroyTexture(enterName);
     SDL_DestroyTexture(instruction);
     SDL_DestroyTexture(level_rank);
-    SDL_DestroyTexture(money);
+    SDL_DestroyTexture(cheese);
     SDL_DestroyTexture(rank_board);
     SDL_DestroyTexture(solve_trace);
     SDL_DestroyTexture(startGame);
@@ -1035,6 +1012,7 @@ void close() {
     SDL_DestroyTexture(Name);
     SDL_DestroyTexture(your_trace);
     SDL_DestroyTexture(pink);
+    SDL_DestroyTexture(bg_name);
     for (int i = 0; i < 3; i++) {
         SDL_DestroyTexture(choose_startGame[i]);
         SDL_DestroyTexture(choose_levelPlay[i]);
